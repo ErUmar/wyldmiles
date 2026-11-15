@@ -1,0 +1,157 @@
+// Prisma Schema for WYLD MILES
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Destination {
+  id                String        @id @default(uuid())
+  slug              String        @unique
+  name              String
+  state             String        // Kashmir, Himachal, Uttarakhand, Ladakh
+  tagline           String
+  description       String
+  heroImage         String
+  gallery           String        // JSON array of image URLs
+  bestSeason        String
+  altitude          String
+  weatherSummary    String
+  permitRequired    Boolean       @default(false)
+  popularActivities String        // JSON array of strings
+  featured          Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  packages          TourPackage[]
+  hotels            Hotel[]
+}
+
+model TourPackage {
+  id               String       @id @default(uuid())
+  slug             String       @unique
+  title            String
+  destinationId    String?
+  destination      Destination? @relation(fields: [destinationId], references: [id])
+  region           String       // Kashmir, Himachal, Uttarakhand, Ladakh
+  durationDays     Int
+  durationNights   Int
+  pricePerPerson   Float
+  discountedPrice  Float?
+  heroImage        String
+  gallery          String       // JSON array of image URLs
+  travelStyle      String       // Honeymoon, Family, Adventure, Bike Expedition, Group, Luxury
+  difficulty       String       @default("Moderate") // Easy, Moderate, Challenging
+  inclusions       String       // JSON array of strings
+  exclusions       String       // JSON array of strings
+  itinerary        String       // JSON array of {day, title, description, stay, highlights}
+  featured         Boolean      @default(false)
+  rating           Float        @default(4.9)
+  reviewsCount     Int          @default(32)
+  createdAt        DateTime     @default(now())
+}
+
+model Hotel {
+  id             String       @id @default(uuid())
+  slug           String       @unique
+  name           String
+  destinationId  String?
+  destination    Destination? @relation(fields: [destinationId], references: [id])
+  location       String       // e.g. "Dal Lake, Srinagar", "Solang Valley, Manali"
+  state          String       // Kashmir, Himachal, Uttarakhand, Ladakh
+  propertyType   String       // Luxury Resort, Boutique Hotel, Heritage Houseboat, Apple Orchard Chalet, Mountain Lodge, Alpine Glamping
+  starRating     Int          @default(4)
+  pricePerNight  Float
+  heroImage      String
+  gallery        String       // JSON array of image URLs
+  description    String
+  amenities      String       // JSON array of strings
+  rooms          String       // JSON array of {type, price, bed, occupancy, features}
+  rating         Float        @default(4.8)
+  reviewsCount   Int          @default(45)
+  featured       Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+}
+
+model Bike {
+  id                 String   @id @default(uuid())
+  slug               String   @unique
+  name               String
+  brand              String   // Royal Enfield, KTM, Bajaj, BMW
+  category           String   // Adventure Tourer, Cruiser, ADV, Mountain Scrambler
+  engineCc           Int
+  powerBhp           Float
+  torqueNm           Float
+  transmission       String   // 5-Speed Manual, 6-Speed Manual
+  mileage            String   // e.g. "30 km/l"
+  fuelCapacityLitres Float
+  absType            String   // Dual-Channel ABS, Switchable ABS
+  luggageCarrier     Boolean  @default(true)
+  dailyRate          Float
+  securityDeposit    Float
+  heroImage          String
+  gallery            String   // JSON array of image URLs
+  featured           Boolean  @default(false)
+  isAvailable        Boolean  @default(true)
+  inclusions         String   // JSON array: helmet, basic tools, first aid, bungee cords
+  exclusions         String   // JSON array: fuel, personal riding gear, pass entry fees
+  suitableRoutes     String   // JSON array: ["Srinagar-Leh Hwy", "Spiti Circuit", "Gurez Valley"]
+  createdAt          DateTime @default(now())
+}
+
+model Car {
+  id                String   @id @default(uuid())
+  slug              String   @unique
+  name              String
+  brand             String
+  category          String   // 4x4 SUV, Premium SUV, Sedan, Hatchback, Luxury Van, Tempo
+  transmission      String   // Manual, Automatic
+  seats             Int
+  luggageBags       Int
+  acHeater          Boolean  @default(true)
+  fuelType          String   // Diesel, Petrol
+  dailyRate         Float
+  selfDriveAllowed  Boolean  @default(true)
+  driverIncluded    Boolean  @default(false)
+  heroImage         String
+  gallery           String   // JSON array of image URLs
+  features          String   // JSON array of strings
+  featured          Boolean  @default(false)
+  isAvailable       Boolean  @default(true)
+  minDays           Int      @default(2)
+  createdAt         DateTime @default(now())
+}
+
+model Enquiry {
+  id              String   @id @default(uuid())
+  reference       String   @unique // e.g. WM-2026-8742
+  type            String   // PACKAGE, HOTEL, BIKE, CAR, CUSTOM
+  itemId          String?
+  itemTitle       String
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  startDate       String
+  endDate         String?
+  guestsCount     Int      @default(1)
+  pickupLocation  String?
+  dropoffLocation String?
+  specialRequests String?
+  estimatedTotal  Float    @default(0)
+  status          String   @default("PENDING") // PENDING, UNDER_REVIEW, CONFIRMED, CANCELLED
+  adminNotes      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  phone        String?
+  passwordHash String
+  role         String   @default("CUSTOMER") // CUSTOMER, ADMIN
+  createdAt    DateTime @default(now())
+}

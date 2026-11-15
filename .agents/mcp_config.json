@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "wyld-miles": {
+      "command": "node",
+      "args": [
+        "scripts/mcp-server.js"
+      ],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
